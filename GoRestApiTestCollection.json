@@ -1,0 +1,3722 @@
+{
+	"info": {
+		"_postman_id": "40890311-851f-4807-8957-9258781c7117",
+		"name": "Go REST API Test Collection",
+		"description": "## Go REST API Test Collection\n\nThis collection provides a comprehensive suite of automated tests for the GoREST API v2 (`https://gorest.co.in`). It covers the full CRUD (Create, Read, Update, Delete) operations for major resources: Users, Posts, Comments, and Todos.\n\nAdditionally, it includes tests validating:\n\n- **Authentication:** Handling of valid, invalid, and missing Bearer tokens.\n    \n- **Error Handling:** Responses for non-existent resources (404) and validation errors during creation/updates (422).\n    \n\n**Execution Note:**  \nDue to the dynamic nature of the public GoREST API and the dependencies between tests (e.g., creating a user before creating their post), this collection **should be run sequentially** using the Postman Collection Runner or Newman.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33028948",
+		"_collection_link": "https://hello6-6688.postman.co/workspace/d8728b13-5258-4d2a-b1ee-fceefdcba240/collection/33028948-40890311-851f-4807-8957-9258781c7117?action=share&source=collection_link&creator=33028948"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "missingAuthorizationToken401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify 'message' equals 'Authentication failed'\", function () {\r",
+									"    pm.expect(jsonData.message).to.equal(\"Authentication failed\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.remove(\"Authorization\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Test Elek456789\",\r\n    \"email\": \"test.elek2@gmail.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users"
+							]
+						},
+						"description": "Sends a POST request without an Authorization token. Verifies that the API responds with 401 Unauthorized and the appropriate error message."
+					},
+					"response": []
+				},
+				{
+					"name": "invalidToken401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify 'message' equals 'Invalid token'\", function () {\r",
+									"    pm.expect(jsonData.message).to.equal(\"Invalid token\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{invalidToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Test Elek456789\",\r\n    \"email\": \"test.elek2@gmail.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users"
+							]
+						},
+						"description": "Sends a POST request with an invalid Authorization token. Verifies that the API responds with 401 Unauthorized and the appropriate error message."
+					},
+					"response": []
+				}
+			],
+			"description": "## Authentication Tests\n\nThis folder contains tests related to the API authentication mechanism using Bearer tokens.\n\n- `missingAuthorizationToken401`: Verifies that a request without a token returns 401 Unauthorized.\n    \n- `invalidToken401`: Verifies that a request with an invalid token returns 401 Unauthorized.\n    \n\nThese tests ensure that the API properly enforces authentication and does not allow unauthorized access.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Verify status code is 401 Unauthorized\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify 'Content-Type' header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify 'Content-Type' includes 'application/json'\", function () {\r",
+							"    const contentType = pm.response.headers.get(\"Content-Type\");\r",
+							"    pm.expect(contentType).to.match(/^application\\/json/);\r",
+							"});\r",
+							"\r",
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Verify 'message' property exists and is of type string\", function () {\r",
+							"    pm.expect(jsonData).to.be.an(\"object\");\r",
+							"    pm.expect(jsonData).to.have.property(\"message\").that.is.a(\"string\");\r",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Users CRUD",
+			"item": [
+				{
+					"name": "createUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify user was created and store ID\", function () {\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.collectionVariables.set(\"userId\", jsonData.id);\r",
+									"});\r",
+									"\r",
+									"if (pm.response.code === 201 && jsonData.id) {\r",
+									"    pm.execution.setNextRequest(\"updateUserPut\");\r",
+									"} else {\r",
+									"    console.warn(\"Unexpected status code:\", pm.response.code,\r",
+									"        \"- User ID was not set, stopping execution.\");\r",
+									"    pm.execution.setNextRequest(null);\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Verify user properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"gender\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created user attributes match request attributes\", function () {\r",
+									"    const expectedUser =\r",
+									"    {\r",
+									"        name: pm.collectionVariables.get(\"userName\"),\r",
+									"        email: pm.collectionVariables.get(\"userEmail\"),\r",
+									"        gender: \"male\",\r",
+									"        status: \"active\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.name).to.equal(expectedUser.name);\r",
+									"    pm.expect(jsonData.email).to.equal(expectedUser.email);\r",
+									"    pm.expect(jsonData.gender).to.equal(expectedUser.gender);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedUser.status);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{userName}}\",\r\n    \"email\": \"{{userEmail}}\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUserPut",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify user properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"gender\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated user attributes match request attributes\", function () {\r",
+									"    const expectedUser =\r",
+									"    {\r",
+									"        email: pm.collectionVariables.get(\"userEmail\"),\r",
+									"        name: pm.collectionVariables.get(\"modifiedUserName\"),\r",
+									"        gender: \"male\",\r",
+									"        status: \"inactive\",\r",
+									"        id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.email).to.equal(expectedUser.email);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedUser.name);\r",
+									"    pm.expect(jsonData.gender).to.equal(expectedUser.gender);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedUser.status);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedUser.id);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"updateUserPatch\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{modifiedUserName}}\",\r\n    \"email\": \"{{userEmail}}\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"inactive\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUserPatch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify user properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"gender\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated user attributes match request attributes\", function () {\r",
+									"    const expectedUser =\r",
+									"    {\r",
+									"        email: pm.collectionVariables.get(\"userEmail\"),\r",
+									"        id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        name: pm.collectionVariables.get(\"modifiedUserName\"),\r",
+									"        gender: \"male\",\r",
+									"        status: \"active\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.email).to.equal(expectedUser.email);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedUser.id);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedUser.name);\r",
+									"    pm.expect(jsonData.gender).to.equal(expectedUser.gender);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedUser.status);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getUserById\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"active\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify user properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"gender\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify retrieved user data by ID\", function () {\r",
+									"    const expectedUser =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        name: pm.collectionVariables.get(\"modifiedUserName\"),\r",
+									"        email: pm.collectionVariables.get(\"userEmail\"),\r",
+									"        gender: \"male\",\r",
+									"        status: \"active\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.id).to.equal(expectedUser.id);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedUser.name);\r",
+									"    pm.expect(jsonData.email).to.equal(expectedUser.email);\r",
+									"    pm.expect(jsonData.gender).to.equal(expectedUser.gender);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedUser.status);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getUsers\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUsers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify users properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"\r",
+									"    jsonData.forEach(function (user) {\r",
+									"        pm.expect(user).to.be.an(\"object\");\r",
+									"        pm.expect(user).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(user).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"        pm.expect(user).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"        pm.expect(user).to.have.property(\"gender\").that.is.a(\"string\");\r",
+									"        pm.expect(user).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created user is in user list\", function () {\r",
+									"    const expectedUser =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        name: pm.collectionVariables.get(\"modifiedUserName\"),\r",
+									"        email: pm.collectionVariables.get(\"userEmail\"),\r",
+									"        gender: \"male\",\r",
+									"        status: \"active\"\r",
+									"    };\r",
+									"\r",
+									"    const actualUser = jsonData.find(user => user.id === parseInt(expectedUser.id));\r",
+									"    pm.expect(actualUser, `User with id ${expectedUser.id} not found`).to.exist;\r",
+									"    pm.expect(actualUser.id).to.equal(expectedUser.id);\r",
+									"    pm.expect(actualUser.name).to.equal(expectedUser.name);\r",
+									"    pm.expect(actualUser.email).to.equal(expectedUser.email);\r",
+									"    pm.expect(actualUser.gender).to.equal(expectedUser.gender);\r",
+									"    pm.expect(actualUser.status).to.equal(expectedUser.status);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"createPost\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 204 or 200\", function () {\r",
+									"    pm.expect([204, 200]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body is empty string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(null);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "## Users CRUD\n\nThis folder covers the full CRUD operations for the `/users` endpoint, including a list query to verify the presence of a created user.\n\nThe scenario includes:\n\n1. **Creating a new user** and storing the user ID in a collection variable.\n    \n2. **Updating the user's data** using both PUT (full update) and PATCH (partial update).\n    \n3. **Retrieving the created user by ID** and verifying the returned attributes.\n    \n4. **Retrieving all users** and checking if the created user is present in the list.\n    \n5. **Deleting the user** and verifying successful removal."
+		},
+		{
+			"name": "Posts CRUD",
+			"item": [
+				{
+					"name": "createPost",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify post was created and store ID\", function () {\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.collectionVariables.set(\"postId\", jsonData.id);\r",
+									"});\r",
+									"\r",
+									"if (pm.response.code === 201 && jsonData.id) {\r",
+									"    pm.execution.setNextRequest(\"updatePostPut\");\r",
+									"} else {\r",
+									"    console.warn(\"Unexpected status code:\", pm.response.code,\r",
+									"        \"- Post ID was not set, stopping execution.\");\r",
+									"    pm.execution.setNextRequest(null);\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Verify post properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created user attributes match request attributes\", function () {\r",
+									"    const expectedPost =\r",
+									"    {\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek post\",\r",
+									"        body: \"This is Test Elek's Hello world post!\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedPost.user_id);\r",
+									"    pm.expect(jsonData.title).to.equal(expectedPost.title);\r",
+									"    pm.expect(jsonData.body).to.equal(expectedPost.body);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": {{userId}},\r\n    \"title\": \"Test Elek post\",\r\n    \"body\": \"This is Test Elek's Hello world post!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/posts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updatePostPut",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify post properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated post attributes match request attributes\", function () {\r",
+									"    const expectedPost =\r",
+									"    {\r",
+									"        title: \"Test Elek post's new title\",\r",
+									"        body: \"This is Test Elek's Hello world post! It's a good day.\",\r",
+									"        id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\"))\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.title).to.equal(expectedPost.title);\r",
+									"    pm.expect(jsonData.body).to.equal(expectedPost.body);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedPost.id);\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedPost.user_id);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"updatePostPatch\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Test Elek post's new title\",\r\n    \"body\": \"This is Test Elek's Hello world post! It's a good day.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/posts/{{postId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updatePostPatch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify post properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated post attributes match request attributes\", function () {\r",
+									"    const expectedPost =\r",
+									"    {\r",
+									"        body: \"This is Test Elek's Hello world post! It's a good day. I like API testing.\",\r",
+									"        id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek post's new title\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.body).to.equal(expectedPost.body);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedPost.id);\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedPost.user_id);\r",
+									"    pm.expect(jsonData.title).to.equal(expectedPost.title);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getPostById\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"body\": \"This is Test Elek's Hello world post! It's a good day. I like API testing.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/posts/{{postId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPostById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify post properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify retrieved post data by ID\", function () {\r",
+									"    const expectedPost =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek post's new title\",\r",
+									"        body: \"This is Test Elek's Hello world post! It's a good day. I like API testing.\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.id).to.equal(expectedPost.id);\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedPost.user_id);\r",
+									"    pm.expect(jsonData.title).to.equal(expectedPost.title);\r",
+									"    pm.expect(jsonData.body).to.equal(expectedPost.body);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getUserAllPosts\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/posts/{{postId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserAllPosts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify posts properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"\r",
+									"    jsonData.forEach(function (post) {\r",
+									"        pm.expect(post).to.be.an(\"object\");\r",
+									"        pm.expect(post).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(post).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"        pm.expect(post).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"        pm.expect(post).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created post is in post list\", function () {\r",
+									"    const expectedPost =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek post's new title\",\r",
+									"        body: \"This is Test Elek's Hello world post! It's a good day. I like API testing.\"\r",
+									"    };\r",
+									"\r",
+									"    const actualPost = jsonData.find(post => post.id === parseInt(expectedPost.id));\r",
+									"    pm.expect(actualPost, `Post with id ${expectedPost.id} not found`).to.exist;\r",
+									"    pm.expect(actualPost.id).to.equal(expectedPost.id);\r",
+									"    pm.expect(actualPost.user_id).to.equal(expectedPost.user_id);\r",
+									"    pm.expect(actualPost.title).to.equal(expectedPost.title);\r",
+									"    pm.expect(actualPost.body).to.equal(expectedPost.body);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getAllPosts\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users/{{userId}}/posts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users",
+								"{{userId}}",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllPosts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify posts properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"\r",
+									"    jsonData.forEach(function (post) {\r",
+									"        pm.expect(post).to.be.an(\"object\");\r",
+									"        pm.expect(post).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(post).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"        pm.expect(post).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"        pm.expect(post).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created post is in post list\", function () {\r",
+									"    const expectedPost =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek post's new title\",\r",
+									"        body: \"This is Test Elek's Hello world post! It's a good day. I like API testing.\"\r",
+									"    };\r",
+									"\r",
+									"    const actualPost = jsonData.find(post => post.id === parseInt(expectedPost.id));\r",
+									"    pm.expect(actualPost, `Post with id ${expectedPost.id} not found`).to.exist;\r",
+									"    pm.expect(actualPost.id).to.equal(expectedPost.id);\r",
+									"    pm.expect(actualPost.user_id).to.equal(expectedPost.user_id);\r",
+									"    pm.expect(actualPost.title).to.equal(expectedPost.title);\r",
+									"    pm.expect(actualPost.body).to.equal(expectedPost.body);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"createComment\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/posts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deletePost",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 204 or 200\", function () {\r",
+									"    pm.expect([204, 200]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body is empty string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"deleteUser\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/posts/{{postId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "## Posts CRUD\n\nThis folder demonstrates full CRUD operations for the `/posts` endpoint, including verification steps for updates and list retrieval.\n\nThe scenario includes:\n\n1. **Create a new post** for a valid user and store the post ID as a collection variable.\n    \n2. **Update the post** using both methods:\n    \n    - `PUT`: Replaces all post fields with the new data.\n        \n    - `PATCH`: Partially updates specific fields of the post.\n        \n3. **Retrieve the post by ID** and validate that the updated data is returned correctly.\n    \n4. **Get all posts by the user** to confirm the post appears under the correct user.\n    \n5. **Get all public posts** and verify that the created post is listed.\n    \n6. **Deleting the post** and verifying successful removal."
+		},
+		{
+			"name": "Comments CRUD",
+			"item": [
+				{
+					"name": "createComment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify comment was created and store ID\", function () {\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.collectionVariables.set(\"commentId\", jsonData.id);\r",
+									"});\r",
+									"\r",
+									"if (pm.response.code === 201 && jsonData.id) {\r",
+									"    pm.execution.setNextRequest(\"updateCommentPut\");\r",
+									"} else {\r",
+									"    console.warn(\"Unexpected status code:\", pm.response.code,\r",
+									"        \"- Comment ID was not set, stopping execution.\");\r",
+									"    pm.execution.setNextRequest(null);\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Verify comment properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"post_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created comment attributes match request attributes\", function () {\r",
+									"    const expectedComment =\r",
+									"    {\r",
+									"        post_id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        name: \"Mr Who\",\r",
+									"        email: \"anything@gmail.com\",\r",
+									"        body: \"Yes, I like this and API testing.\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.post_id).to.equal(expectedComment.post_id);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedComment.name);\r",
+									"    pm.expect(jsonData.email).to.equal(expectedComment.email);\r",
+									"    pm.expect(jsonData.body).to.equal(expectedComment.body);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"post_id\": {{postId}},\r\n    \"name\": \"Mr Who\",\r\n    \"email\": \"anything@gmail.com\",\r\n    \"body\": \"Yes, I like this and API testing.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateCommentPut",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify comment properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"post_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated comment attributes match request attributes\", function () {\r",
+									"    const expectedComment =\r",
+									"    {\r",
+									"        post_id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        name: \"Mr Who\",\r",
+									"        email: \"anything@gmail.com\",\r",
+									"        body: \"Yes, I like this and API testing and Postman.\",\r",
+									"        id: parseInt(pm.collectionVariables.get(\"commentId\"))\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.post_id).to.equal(expectedComment.post_id);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedComment.name);\r",
+									"    pm.expect(jsonData.email).to.equal(expectedComment.email);\r",
+									"    pm.expect(jsonData.body).to.equal(expectedComment.body);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedComment.id);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"updateCommentPatch\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"post_id\": {{postId}},\r\n    \"name\": \"Mr Who\",\r\n    \"email\": \"anything@gmail.com\",\r\n    \"body\": \"Yes, I like this and API testing and Postman.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/comments/{{commentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateCommentPatch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify comment properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"post_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated comment attributes match request attributes\", function () {\r",
+									"    const expectedComment =\r",
+									"    {\r",
+									"        post_id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        name: \"Mr Who and Mrs Who\",\r",
+									"        id: parseInt(pm.collectionVariables.get(\"commentId\")),\r",
+									"        email: \"anything@gmail.com\",\r",
+									"        body: \"Yes, I like this and API testing and Postman.\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.post_id).to.equal(expectedComment.post_id);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedComment.name);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedComment.id);\r",
+									"    pm.expect(jsonData.email).to.equal(expectedComment.email);\r",
+									"    pm.expect(jsonData.body).to.equal(expectedComment.body);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getCommentById\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"post_id\": {{postId}},\r\n    \"name\": \"Mr Who and Mrs Who\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/comments/{{commentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCommentById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify comment properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"post_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify retrieved comment data by ID\", function () {\r",
+									"    const expectedComment =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"commentId\")),\r",
+									"        post_id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        name: \"Mr Who and Mrs Who\",\r",
+									"        email: \"anything@gmail.com\",\r",
+									"        body: \"Yes, I like this and API testing and Postman.\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.id).to.equal(expectedComment.id);\r",
+									"    pm.expect(jsonData.post_id).to.equal(expectedComment.post_id);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedComment.name);\r",
+									"    pm.expect(jsonData.email).to.equal(expectedComment.email);\r",
+									"    pm.expect(jsonData.body).to.equal(expectedComment.body);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getCommentsByPostId\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/comments/{{commentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCommentsByPostId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify comments properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"\r",
+									"    jsonData.forEach(function (post) {\r",
+									"        pm.expect(post).to.be.an(\"object\");\r",
+									"        pm.expect(post).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(post).to.have.property(\"post_id\").that.is.a(\"number\");\r",
+									"        pm.expect(post).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"        pm.expect(post).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"        pm.expect(post).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created comment is in comment list\", function () {\r",
+									"    const expectedComment =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"commentId\")),\r",
+									"        post_id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        name: \"Mr Who and Mrs Who\",\r",
+									"        email: \"anything@gmail.com\",\r",
+									"        body: \"Yes, I like this and API testing and Postman.\"\r",
+									"    };\r",
+									"\r",
+									"    const actualComment = jsonData.find(comment => comment.id === parseInt(expectedComment.id));\r",
+									"    pm.expect(actualComment, `Comment with id ${expectedComment.id} not found`).to.exist;\r",
+									"    pm.expect(actualComment.id).to.equal(expectedComment.id);\r",
+									"    pm.expect(actualComment.post_id).to.equal(expectedComment.post_id);\r",
+									"    pm.expect(actualComment.name).to.equal(expectedComment.name);\r",
+									"    pm.expect(actualComment.email).to.equal(expectedComment.email);\r",
+									"    pm.expect(actualComment.body).to.equal(expectedComment.body);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getAllComments\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/posts/{{postId}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"posts",
+								"{{postId}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllComments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify comments properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"\r",
+									"    jsonData.forEach(function (comment) {\r",
+									"        pm.expect(comment).to.be.an(\"object\");\r",
+									"        pm.expect(comment).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(comment).to.have.property(\"post_id\").that.is.a(\"number\");\r",
+									"        pm.expect(comment).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"        pm.expect(comment).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"        pm.expect(comment).to.have.property(\"body\").that.is.a(\"string\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created comment is in comment list\", function () {\r",
+									"    const expectedComment =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"commentId\")),\r",
+									"        post_id: parseInt(pm.collectionVariables.get(\"postId\")),\r",
+									"        name: \"Mr Who and Mrs Who\",\r",
+									"        email: \"anything@gmail.com\",\r",
+									"        body: \"Yes, I like this and API testing and Postman.\"\r",
+									"    };\r",
+									"\r",
+									"    const actualComment = jsonData.find(comment => comment.id === parseInt(expectedComment.id));\r",
+									"    pm.expect(actualComment, `Post with id ${expectedComment.id} not found`).to.exist;\r",
+									"    pm.expect(actualComment.id).to.equal(expectedComment.id);\r",
+									"    pm.expect(actualComment.post_id).to.equal(expectedComment.post_id);\r",
+									"    pm.expect(actualComment.name).to.equal(expectedComment.name);\r",
+									"    pm.expect(actualComment.email).to.equal(expectedComment.email);\r",
+									"    pm.expect(actualComment.body).to.equal(expectedComment.body);\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"createTodo\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteComment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 204 or 200\", function () {\r",
+									"    pm.expect([204, 200]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body is empty string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"deletePost\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/comments/{{commentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "## Comments CRUD\n\nThis folder contains the full CRUD workflow for the `/comments` endpoint.\n\nThe scenario includes:\n\n1. **Creating a comment** on a post and storing the comment ID in a collection variable.\n    \n2. **Updating the comment** using both PUT (full update) and PATCH (partial update).\n    \n3. **Retrieving the created comment** by ID to verify updated content.\n    \n4. **Retrieving all comments** made by the user and checking for presence.\n    \n5. **Retrieving all comments** globally to ensure it appears in the list.\n    \n6. **Deleting the comment** and verifying successful removal."
+		},
+		{
+			"name": "Todos CRUD",
+			"item": [
+				{
+					"name": "createTodo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify todo was created and store ID\", function () {\r",
+									"    pm.expect(jsonData).to.have.property(\"id\");\r",
+									"    pm.collectionVariables.set(\"todoId\", jsonData.id);\r",
+									"});\r",
+									"\r",
+									"if (pm.response.code === 201 && jsonData.id) {\r",
+									"    pm.execution.setNextRequest(\"updateTodoPut\");\r",
+									"} else {\r",
+									"    console.warn(\"Unexpected status code:\", pm.response.code,\r",
+									"        \"- Todo ID was not set, stopping execution.\");\r",
+									"    pm.execution.setNextRequest(null);\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Verify todo properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"due_on\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created todo attributes match request attributes\", function () {\r",
+									"    const expectedTodo =\r",
+									"    {\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek's todo\",\r",
+									"        due_on: \"2025-04-01T17:30:00.000+05:30\",\r",
+									"        status: \"pending\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedTodo.user_id);\r",
+									"    pm.expect(jsonData.title).to.equal(expectedTodo.title);\r",
+									"    pm.expect(jsonData.due_on).to.equal(expectedTodo.due_on);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedTodo.status);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'due_on' is a valid parsable date\", function () {\r",
+									"    pm.expect(Date.parse(jsonData.due_on)).to.not.be.NaN;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": {{userId}},\r\n    \"title\": \"Test Elek's todo\",\r\n    \"due_on\": \"2025-04-01T12:00:00.000Z\",\r\n    \"status\": \"pending\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/todos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateTodoPut",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify todo properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"due_on\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated todo attributes match request attributes\", function () {\r",
+									"    const expectedTodo =\r",
+									"    {\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek's tests execution todo\",\r",
+									"        due_on: \"2025-04-02T18:54:00.000+05:30\",\r",
+									"        status: \"pending\",\r",
+									"        id: parseInt(pm.collectionVariables.get(\"todoId\"))\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedTodo.user_id);\r",
+									"    pm.expect(jsonData.title).to.equal(expectedTodo.title);\r",
+									"    pm.expect(jsonData.due_on).to.equal(expectedTodo.due_on);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedTodo.status);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedTodo.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'due_on' is a valid parsable date\", function () {\r",
+									"    pm.expect(Date.parse(jsonData.due_on)).to.not.be.NaN;\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"updateTodoPatch\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": {{userId}},\r\n    \"title\": \"Test Elek's tests execution todo\",\r\n    \"due_on\": \"2025-04-02T13:24:00.000Z\",\r\n    \"status\": \"pending\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/todos/{{todoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"todos",
+								"{{todoId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateTodoPatch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify todo properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"due_on\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify updated todo attributes match request attributes\", function () {\r",
+									"    const expectedTodo =\r",
+									"    {\r",
+									"        due_on: \"2025-04-02T19:08:00.000+05:30\",\r",
+									"        status: \"completed\",\r",
+									"        id: parseInt(pm.collectionVariables.get(\"todoId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek's tests execution todo\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.due_on).to.equal(expectedTodo.due_on);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedTodo.status);\r",
+									"    pm.expect(jsonData.id).to.equal(expectedTodo.id);\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedTodo.user_id);\r",
+									"    pm.expect(jsonData.title).to.equal(expectedTodo.title);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'due_on' is a valid parsable date\", function () {\r",
+									"    pm.expect(Date.parse(jsonData.due_on)).to.not.be.NaN;\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getTodoById\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"due_on\": \"2025-04-02T19:08:00.000+05:30\",\r\n    \"status\": \"completed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/todos/{{todoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"todos",
+								"{{todoId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTodoById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify todo properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"    pm.expect(jsonData).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"due_on\").that.is.a(\"string\");\r",
+									"    pm.expect(jsonData).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify retrieved todo data by ID\", function () {\r",
+									"    const expectedTodo =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"todoId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek's tests execution todo\",\r",
+									"        due_on: \"2025-04-02T19:08:00.000+05:30\",\r",
+									"        status: \"completed\"\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(jsonData.id).to.equal(expectedTodo.id);\r",
+									"    pm.expect(jsonData.user_id).to.equal(expectedTodo.user_id);\r",
+									"    pm.expect(jsonData.title).to.equal(expectedTodo.title);\r",
+									"    pm.expect(jsonData.due_on).to.equal(expectedTodo.due_on);\r",
+									"    pm.expect(jsonData.status).to.equal(expectedTodo.status);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'due_on' is a valid parsable date\", function () {\r",
+									"    pm.expect(Date.parse(jsonData.due_on)).to.not.be.NaN;\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getUserAllTodos\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/todos/{{todoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"todos",
+								"{{todoId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserAllTodos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify todos properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"\r",
+									"    jsonData.forEach(function (todo) {\r",
+									"        pm.expect(todo).to.be.an(\"object\");\r",
+									"        pm.expect(todo).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(todo).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"        pm.expect(todo).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"        pm.expect(todo).to.have.property(\"due_on\").that.is.a(\"string\");\r",
+									"        pm.expect(todo).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created todo is in todo list\", function () {\r",
+									"    const expectedTodo =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"todoId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek's tests execution todo\",\r",
+									"        due_on: \"2025-04-02T19:08:00.000+05:30\",\r",
+									"        status: \"completed\"\r",
+									"    };\r",
+									"\r",
+									"    const actualTodo = jsonData.find(todo => todo.id === parseInt(expectedTodo.id));\r",
+									"    pm.expect(actualTodo, `Todo with id ${expectedTodo.id} not found`).to.exist;\r",
+									"    pm.expect(actualTodo.id).to.equal(expectedTodo.id);\r",
+									"    pm.expect(actualTodo.user_id).to.equal(expectedTodo.user_id);\r",
+									"    pm.expect(actualTodo.title).to.equal(expectedTodo.title);\r",
+									"    pm.expect(actualTodo.due_on).to.equal(expectedTodo.due_on);\r",
+									"    pm.expect(actualTodo.status).to.equal(expectedTodo.status);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'due_on' is a valid parsable date\", function () {\r",
+									"    jsonData.forEach(function (todo) {\r",
+									"        pm.expect(Date.parse(todo.due_on)).to.not.be.NaN;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getAllTodos\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/users/{{userId}}/todos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"users",
+								"{{userId}}",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllTodos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify todos properties have correct data types\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"array\");\r",
+									"\r",
+									"    jsonData.forEach(function (todo) {\r",
+									"        pm.expect(todo).to.be.an(\"object\");\r",
+									"        pm.expect(todo).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(todo).to.have.property(\"user_id\").that.is.a(\"number\");\r",
+									"        pm.expect(todo).to.have.property(\"title\").that.is.a(\"string\");\r",
+									"        pm.expect(todo).to.have.property(\"due_on\").that.is.a(\"string\");\r",
+									"        pm.expect(todo).to.have.property(\"status\").that.is.a(\"string\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify created todo is in todo list\", function () {\r",
+									"    const expectedTodo =\r",
+									"    {\r",
+									"        id: parseInt(pm.collectionVariables.get(\"todoId\")),\r",
+									"        user_id: parseInt(pm.collectionVariables.get(\"userId\")),\r",
+									"        title: \"Test Elek's tests execution todo\",\r",
+									"        due_on: \"2025-04-02T19:08:00.000+05:30\",\r",
+									"        status: \"completed\"\r",
+									"    };\r",
+									"\r",
+									"    const actualTodo = jsonData.find(todo => todo.id === parseInt(expectedTodo.id));\r",
+									"    pm.expect(actualTodo, `Todo with id ${expectedTodo.id} not found`).to.exist;\r",
+									"    pm.expect(actualTodo.id).to.equal(expectedTodo.id);\r",
+									"    pm.expect(actualTodo.user_id).to.equal(expectedTodo.user_id);\r",
+									"    pm.expect(actualTodo.title).to.equal(expectedTodo.title);\r",
+									"    pm.expect(actualTodo.due_on).to.equal(expectedTodo.due_on);\r",
+									"    pm.expect(actualTodo.status).to.equal(expectedTodo.status);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'due_on' is a valid parsable date\", function () {\r",
+									"    jsonData.forEach(function (todo) {\r",
+									"        pm.expect(Date.parse(todo.due_on)).to.not.be.NaN;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"getNonExistentUser404\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/todos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTodo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Verify status code is 204 or 200\", function () {\r",
+									"    pm.expect([204, 200]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify response body is empty string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.execution.setNextRequest(\"deleteComment\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/v2/todos/{{todoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"v2",
+								"todos",
+								"{{todoId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "## Todos CRUD\n\nThis folder contains the full CRUD scenario for the `/todos` endpoint.\n\nThe scenario includes:\n\n1. **Creating a new todo** item and storing its ID in a collection variable.\n    \n2. **Updating the todo using both PUT** (full update) and **PATCH** (partial update).\n    \n3. **Retrieving the todo by its ID** and verifying its details.\n    \n4. **Fetching all todos** assigned to the user to confirm its presence.\n    \n5. **Retrieving all todos** globally to ensure consistency.\n    \n6. **Deleting the todo** and verifying successful removal."
+		},
+		{
+			"name": "Error Handling",
+			"item": [
+				{
+					"name": "GET entities",
+					"item": [
+						{
+							"name": "getNonExistentUser404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for non-existent user\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/users/{{invalidUserId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"users",
+										"{{invalidUserId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getNonExistentPost404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for non-existent post\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/posts/{{invalidPostId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"posts",
+										"{{invalidPostId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getNonExistentComment404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for non-existent comment\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/comments/{{invalidCommentId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"comments",
+										"{{invalidCommentId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getNonExistentTodo404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for non-existent todo\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/todos/{{invalidTodoId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"todos",
+										"{{invalidTodoId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "## GET Non-existent Entities\n\nThese tests attempt to retrieve resources (users, posts, comments, todos) that do not exist.\n\nExpected result: 404 Not Found with a meaningful error message.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify 'message' property exists and is of type string\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"message\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'message' is 'Resource not found'\", function () {\r",
+									"    pm.expect(jsonData.message).to.equal(\"Resource not found\");\r",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "CREATE entities",
+					"item": [
+						{
+							"name": "createUserWithDuplicateEmail422",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 422 for duplicate email\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"const emailError = jsonData.find(e => e.field === \"email\");\r",
+											"\r",
+											"pm.test(\"Verify response includes 'email' validation error with correct structure\", function () {\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"    pm.expect(emailError).to.have.property(\"field\").that.is.a(\"string\");\r",
+											"    pm.expect(emailError).to.have.property(\"message\").that.is.a(\"string\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify validation error for 'email' field is 'has already been taken'\", function () {\r",
+											"    pm.expect(emailError).to.not.be.undefined;\r",
+											"    pm.expect(emailError.message).to.equal(\"has already been taken\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Test Elek duplicate email\",\r\n    \"email\": \"{{userEmail}}\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"users"
+									]
+								},
+								"description": "## Note\n\nSends a POST request using an email address that has already been registered.\n\nVerifies that the API returns a 422 status code and a validation error indicating the email is already taken.\n\n⚠️ This test reuses the email address generated during the createUser request. Make sure the user creation has occurred before executing this request to ensure the duplicate email condition is valid."
+							},
+							"response": []
+						},
+						{
+							"name": "createUserWithIncompleteData422",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 422 for incomplete data\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"const nameError = jsonData.find(e => e.field === \"name\" && e.message === \"can't be blank\");\r",
+											"\r",
+											"pm.test(\"Verify response includes 'name' validation error with correct structure\", function () {\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"    pm.expect(nameError).to.have.property(\"field\").that.is.a(\"string\");\r",
+											"    pm.expect(nameError).to.have.property(\"message\").that.is.a(\"string\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify validation error for 'name' field is 'can't be blank'\", function () {\r",
+											"    pm.expect(nameError).to.not.be.undefined;\r",
+											"    pm.expect(nameError.message).to.equal(\"can't be blank\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"test.elek777@gmail.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "createPostWithIncompleteData422",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 422 for incomplete data\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"const titleError = jsonData.find(e => e.field === \"title\" && e.message === \"can't be blank\");\r",
+											"\r",
+											"pm.test(\"Verify response includes 'title' validation error with correct structure\", function () {\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"    pm.expect(titleError).to.have.property(\"field\").that.is.a(\"string\");\r",
+											"    pm.expect(titleError).to.have.property(\"message\").that.is.a(\"string\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify validation error for 'title' field is 'can't be blank'\", function () {\r",
+											"    pm.expect(titleError).to.not.be.undefined;\r",
+											"    pm.expect(titleError.message).to.equal(\"can't be blank\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_id\": {{userId}},\r\n    \"body\": \"This is Test Elek's Hello world post!\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/posts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"posts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "createCommentWithIncompleteData422",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 422 for incomplete data\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Verify all error objects have 'field' and 'message' properties with correct types\", function () {\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"\r",
+											"    jsonData.forEach(function (error) {\r",
+											"        pm.expect(error).to.be.an(\"object\");\r",
+											"        pm.expect(error).to.have.property(\"field\").that.is.a(\"string\");\r",
+											"        pm.expect(error).to.have.property(\"message\").that.is.a(\"string\");\r",
+											"    });\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify expected validation errors for missing or invalid fields\", function () {\r",
+											"    const expectedErrors = [\r",
+											"        {\r",
+											"            field: \"post\",\r",
+											"            message: \"must exist\"\r",
+											"        },\r",
+											"        {\r",
+											"            field: \"post_id\",\r",
+											"            message: \"is not a number\"\r",
+											"        }\r",
+											"    ];\r",
+											"\r",
+											"    expectedErrors.forEach(expectedError => {\r",
+											"        const error = jsonData.find(e => e.field === expectedError.field && e.message === expectedError.message);\r",
+											"        pm.expect(error).to.not.be.undefined;\r",
+											"    });\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Mr Who\",\r\n    \"email\": \"anything@gmail.com\",\r\n    \"body\": \"Yes, I like this and API testing.\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/comments",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"comments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "createTodoWithIncompleteData422",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 422 for incomplete data\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"const statusError = jsonData.find(e => e.field === \"status\" && e.message === \"can't be blank, can be pending or completed\");\r",
+											"\r",
+											"pm.test(\"Verify response includes 'status' validation error with correct structure\", function () {\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"    pm.expect(statusError).to.have.property(\"field\").that.is.a(\"string\");\r",
+											"    pm.expect(statusError).to.have.property(\"message\").that.is.a(\"string\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify validation error for 'status' field is 'can't be blank, can be pending or completed'\", function () {\r",
+											"    pm.expect(statusError).to.not.be.undefined;\r",
+											"    pm.expect(statusError.message).to.equal(\"can't be blank, can be pending or completed\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_id\": {{userId}},\r\n    \"title\": \"Test Elek's todo\",\r\n    \"due_on\": \"2025-04-01T12:00:00.000Z\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/todos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"todos"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "## Create Entities – Invalid Requests\n\nThis folder contains tests for invalid POST requests when creating users, posts, comments, and todos.\n\nCovered scenarios include:\n\n- Missing required fields (e.g., `name`, `post_id`, `status`)\n    \n- Duplicate entries (e.g., reused email addresses)\n    \n\nEach test verifies that the API responds with:\n\n- 422 Unprocessable Entity status code\n    \n- A clear and structured validation error message\n    \n\nThese tests help ensure the API performs proper server-side validation during resource creation."
+				},
+				{
+					"name": "PUT update entities",
+					"item": [
+						{
+							"name": "updateNonExistentUserPut404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PUT updating non-existent user\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Mr. Test Elek\",\r\n    \"email\": \"test.elek888@gmail.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"inactive\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/users/{{invalidUserId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"users",
+										"{{invalidUserId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updateNonExistentPostPut404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PUT updating non-existent post\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"title\": \"Test Elek post's new title\",\r\n    \"body\": \"This is Test Elek's Hello world post! It's a good day.\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/posts/{{invalidPostId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"posts",
+										"{{invalidPostId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updateNonExistentCommentPut404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PUT updating non-existent comment\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"post_id\": {{postId}},\r\n    \"name\": \"Mr Who\",\r\n    \"email\": \"anything@gmail.com\",\r\n    \"body\": \"Yes, I like this and API testing and Postman.\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/comments/{{invalidCommentId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"comments",
+										"{{invalidCommentId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updateNonExistentTodoPut404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PUT updating non-existent todo\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_id\": {{userId}},\r\n    \"title\": \"Test Elek's tests execution todo\",\r\n    \"due_on\": \"2025-04-02T13:24:00.000Z\",\r\n    \"status\": \"pending\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/todos/{{invalidTodoId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"todos",
+										"{{invalidTodoId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "## PUT Entities – Error Handling\n\nThis folder contains tests for updating non-existent entities (user, post, comment, todo) via the PUT method.\n\nEach test sends a request to a resource with an invalid or non-existent ID and verifies that:\n\n- The API responds with a `404 Not Found` status code.\n    \n- The response body contains the appropriate error message: `\"Resource not found\"`.\n    \n- The response structure is correct and consistent (e.g. `message` property is a string).",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify 'message' property exists and is of type string\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"message\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'message' property value is 'Resource not found'\", function () {\r",
+									"    pm.expect(jsonData.message).to.equal(\"Resource not found\");\r",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "PATCH update entities",
+					"item": [
+						{
+							"name": "updateNonExistentUserPatch404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PATCH updating non-existent user\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"test.elekNewEmail@gmail.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/users/{{invalidUserId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"users",
+										"{{invalidUserId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updateNonExistentPostPatch404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PATCH updating non-existent post\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"body\": \"This is Test Elek's Hello world post! It's a good day. I like API testing.\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/posts/{{invalidPostId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"posts",
+										"{{invalidPostId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updateNonExistentCommentPatch404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PATCH updating non-existent comment\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"post_id\": {{postId}},\r\n    \"name\": \"Mr Who and Mrs Who\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/comments/{{invalidCommentId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"comments",
+										"{{invalidCommentId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updateNonExistentTodoPatch404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for PATCH updating non-existent todo\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"due_on\": \"2025-04-02T19:08:00.000+05:30\",\r\n    \"status\": \"completed\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/todos/{{invalidTodoId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"todos",
+										"{{invalidTodoId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "## PATCH Entities – Error Handling\n\nThis folder includes tests for attempting to update non-existent resources using the PATCH method.\n\nEach request uses an invalid or non-existent ID and expects the following behavior:\n\n- The API returns a `404 Not Found` status code.\n    \n- The response body contains a `\"message\"` property with the value `\"Resource not found\"`.\n    \n- The structure and content of the response match expected error handling patterns.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Verify 'message' property exists and is of type string\", function () {\r",
+									"    pm.expect(jsonData).to.be.an(\"object\");\r",
+									"    pm.expect(jsonData).to.have.property(\"message\").that.is.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify 'message' property value is 'Resource not found'\", function () {\r",
+									"    pm.expect(jsonData.message).to.equal(\"Resource not found\");\r",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "DELETE entities",
+					"item": [
+						{
+							"name": "deleteNonExistentUser404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for deleting non-existent user\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/users/{{invalidUserId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"users",
+										"{{invalidUserId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "deleteNonExistentPost404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for deleting non-existent post\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/posts/{{invalidPostId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"posts",
+										"{{invalidPostId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "deleteNonExistentComment404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for deleting non-existent comment\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/comments/{{invalidCommentId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"comments",
+										"{{invalidCommentId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "deleteNonExistentTodo404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verify status code is 404 for deleting non-existent todo\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.execution.setNextRequest(\"deleteTodo\");"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/public/v2/todos/{{invalidTodoId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"public",
+										"v2",
+										"todos",
+										"{{invalidTodoId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "## DELETE Entities – Error Handling\n\nThis folder contains tests for attempting to delete non-existent entities using the DELETE method.\n\nFor each invalid delete attempt, the following is verified:\n\n- The API returns a `404 Not Found` status code.\n    \n- The response includes a `message` field with the value `\"Resource not found\"`.\n    \n- The response structure matches the expected error format.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									"if (pm.response.code === 404) {\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Verify 'message' property exists and is of type string\", function () {\r",
+									"        pm.expect(jsonData).to.be.an(\"object\");\r",
+									"        pm.expect(jsonData).to.have.property(\"message\").that.is.a(\"string\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Verify 'message' is 'Resource not found'\", function () {\r",
+									"        pm.expect(jsonData.message).to.equal(\"Resource not found\");\r",
+									"    });\r",
+									"}"
+								]
+							}
+						}
+					]
+				}
+			],
+			"description": "## Error Handling Tests\n\nThis folder contains tests that verify how the API handles invalid or unexpected requests.\n\nCovered scenarios include:\n\n- Retrieving, updating, or deleting non-existent entities (users, posts, comments, todos)\n    \n- Creating resources with duplicate or incomplete data\n    \n- Missing or malformed required fields\n    \n\nThese tests ensure that the API responds with the correct error codes (`404`, `422`) and meaningful error messages in case of client-side errors.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Verify 'Content-Type' header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify 'Content-Type' includes 'application/json'\", function () {\r",
+							"    const contentType = pm.response.headers.get(\"Content-Type\");\r",
+							"    pm.expect(contentType).to.match(/^application\\/json/);\r",
+							"});"
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.test(\"Verify response time is within acceptable limit\", function () {\r",
+					"    const responseTime = pm.response.responseTime;\r",
+					"    const acceptableTime = 500;\r",
+					"\r",
+					"    if (acceptableTime >= responseTime) {\r",
+					"        pm.expect(responseTime).to.be.below(acceptableTime);\r",
+					"    } else {\r",
+					"        console.warn(\"Response time is slow: \" + responseTime + \"ms\");\r",
+					"        pm.expect(responseTime).to.be.below(1500);\r",
+					"    }\r",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "35fc1eb70656b61effe2e83735cd5e2e09954f4c0d4cbfa842f1dc27175ddd2e",
+			"type": "string"
+		},
+		{
+			"key": "invalidToken",
+			"value": "7a1d2cf98b65f47a99ef30cde47a91bf12238e9c847d5ac9083b72e15adc86f4",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "https://gorest.co.in",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "test.elek888@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "modifiedUserName",
+			"value": "Mr. Test Elek Thomas",
+			"type": "string"
+		},
+		{
+			"key": "postId",
+			"value": ""
+		},
+		{
+			"key": "commentId",
+			"value": ""
+		},
+		{
+			"key": "todoId",
+			"value": ""
+		},
+		{
+			"key": "invalidUserId",
+			"value": "1111111",
+			"type": "string"
+		},
+		{
+			"key": "invalidPostId",
+			"value": "222222",
+			"type": "string"
+		},
+		{
+			"key": "invalidCommentId",
+			"value": "333333",
+			"type": "string"
+		},
+		{
+			"key": "invalidTodoId",
+			"value": "44444",
+			"type": "string"
+		},
+		{
+			"key": "userName",
+			"value": "Test Elek",
+			"type": "string"
+		}
+	]
+}
