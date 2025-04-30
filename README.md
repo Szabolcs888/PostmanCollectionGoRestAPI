@@ -6,18 +6,18 @@
 <tr>
 <td>
 <a href="https://www.youtube.com/watch?v=8dA4x-k2LUY" style="display: block;">
-<img src="https://github.com/user-attachments/assets/c5880b11-f9cc-4539-91a9-de0b1f56d8a3" alt="Video 1" width="300" />
+<img src="https://github.com/user-attachments/assets/96f54547-844e-4303-a2f3-36ef84e62bab" alt="Video 1" width="300" />
    </a>
 <br>
 <p align="center">Collection demo video</p>
 </td>
 <td>
-<img src="https://github.com/user-attachments/assets/d6d9b6b2-19f2-43df-9f0e-21d721a23eaf" alt="Kép 2" width="300"/>
+<img src="https://github.com/user-attachments/assets/2d01f2b8-538b-41ef-a1bc-3a723d060bd8" alt="Kép 2" width="300"/>
 <br>
 <p align="center">Tests example screenshot</p>
 </td>
 <td>
-<img src="https://github.com/user-attachments/assets/af9fdcba-d228-432e-863f-6f396ecab974" alt="Kép 2" width="300"/>
+<img src="https://github.com/user-attachments/assets/a51f1d2a-f5d5-4333-804d-e4fc1f9f6f08" alt="Kép 2" width="300"/>
 <br>
 <p align="center">HTML Report screenshot</p>
 </td>
