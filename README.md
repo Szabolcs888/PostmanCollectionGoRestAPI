@@ -130,12 +130,12 @@ Key collection variables used:
 
 Ez a Postman collection egy átfogó automatizált tesztkészletet biztosít a GoREST API-hoz (v2 - `https://gorest.co.in/public/v2/`). Lefedi a fő erőforrások (Users, Posts, Comments, Todos) teljes CRUD műveleteit, valamint átfogó hibakezelési forgatókönyveket/teszteket és authentikációs teszteket is tartalmaz.
 
-## Előfeltételek
+## A futtatás előfeltételei
 
 1.  **Postman** és/vagy **Newman** 
-2.  **Érvényes API Token:** Szükséged van egy érvényes Bearer tokenre a GoREST-től. Állítsd be ezt a tokent a `token` collection változóban. A collection tartalmaz egy alapértelmezett tokent, de az lejárhat vagy érvénytelenné válhat.
+2.  **Érvényes API Token:** Szükség van egy érvényes Bearer tokenre a GoREST-től, amelyet be kell állítani a `token` collection változóban. A collection tartalmaz egy alapértelmezett tokent, de az lejárhat vagy érvénytelenné válhat.
 
-## A Collection Szerkezete és a szekciók céljai
+## A collection szerkezete és a szekciók céljai
 
 A collection logikai mappákba van szervezve. Fontos megjegyezni, hogy a collection mappaszinten, illetve egyes requestek szintjén is tartalmaz leírásokat (`description`), **valamint bizonyos mappák szintjén (pl. 'Authentication', 'Error Handling' almappái) teszteket is**. Ez utóbbi lehetővé teszi a közös ellenőrzések (pl. státuszkód, alapvető válaszstruktúra) központi definiálását és automatikus lefuttatását az adott mappa alá tartozó összes requestre, követve a DRY elvet és tisztán tartva az egyedi requestek tesztjeit.
 
@@ -167,26 +167,26 @@ Az egyes fő szekciók céljai a következők:
         *   Erőforrások létrehozása duplikált adatokkal (pl. már létező email - várt eredmény: `422 Unprocessable Entity`).
         *   Erőforrások létrehozása hiányos vagy kötelező mezők nélküli adatokkal (várt eredmény: `422 Unprocessable Entity`).
 
-## A Collection Futtatása
+## A Collection futtatása
 
 A collectiont **ajánlott** a **Postman Collection Runner** vagy a **Newman** segítségével futtatni, mivel a tesztek az előző lépésekben létrehozott adatoktól (`userId`, `postId`, `commentId`, `todoId`) függenek. 
 
-**A Szekvenciális Futtatás Oka:** A GoREST API élő, nyilvános és módosítható adatokkal működik, amelyet mások is használnak, ezért az adatok folyamatosan változnak. Ebből következően statikus, független tesztek létrehozása, amelyek fix erőforrásazonosítókra (pl. annak feltételezése, hogy a `7855260`-as felhasználó mindig létezik specifikus adatokkal) támaszkodnak, megbízhatatlan és hibára hajlamos. Ez a dinamikus természet teszi szükségessé az itt alkalmazott szekvenciális munkafolyamatot, ahol az erőforrásokat létrehozzuk, azonosítóikat dinamikusan elmentjük, teszteljük, és végül töröljük.
+**A Szekvenciális futtatás oka:** A GoREST API élő, nyilvános és módosítható adatokkal működik, amelyet mások is használnak, ezért az adatok folyamatosan változnak. Ebből következően statikus, független tesztek létrehozása, amelyek fix erőforrásazonosítókra (pl. annak feltételezése, hogy a `7855260`-as felhasználó mindig létezik specifikus adatokkal) támaszkodnak, megbízhatatlan és hibára hajlamos. Ez a dinamikus természet teszi szükségessé az itt alkalmazott szekvenciális munkafolyamatot, ahol az erőforrásokat létrehozzuk, azonosítóikat dinamikusan elmentjük, teszteljük, és végül töröljük.
 
-*   **Futtatási Sorrend:** A tesztek egy meghatározott munkafolyamatot követnek (Authentication -> User -> Post -> Comment -> Todo -> Error Handling -> Cleanup). 
-*   **Dinamikus ID Kezelés:** A `createUser`, `createPost`, `createComment` és `createTodo` kérések rögzítik az újonnan létrehozott erőforrás azonosítóját, és eltárolják azt a megfelelő collection változóban (`userId`, `postId`, stb.).
-*   **Futtatási Folyamat Vezérlése:** Ha bármelyik "create" kérés sikertelen (pl. nem `201 Created` státusszal és érvényes ID-vel tér vissza), a testscript a `pm.execution.setNextRequest(null)` parancsot használja. **Ez szándékosan leállítja a Collection Runnert**, hogy megakadályozza a későbbi tesztek meghiúsulását a hiányzó előfeltétel-adatok (mint pl. egy `userId`) miatt.
+*   **Futtatási sorrend:** A tesztek egy meghatározott munkafolyamatot követnek (Authentication -> User -> Post -> Comment -> Todo -> Error Handling -> Cleanup). 
+*   **Dinamikus ID kezelés:** A `createUser`, `createPost`, `createComment` és `createTodo` kérések rögzítik az újonnan létrehozott erőforrás azonosítóját, és eltárolják azt a megfelelő collection változóban (`userId`, `postId`, stb.).
+*   **Futtatási folyamat vezérlése:** Ha bármelyik "create" kérés sikertelen (pl. nem `201 Created` státusszal és érvényes ID-vel tér vissza), a testscript a `pm.execution.setNextRequest(null)` parancsot használja. **Ez szándékosan leállítja a Collection Runnert**, hogy megakadályozza a későbbi tesztek meghiúsulását a hiányzó előfeltétel-adatok (mint pl. egy `userId`) miatt.
 
-## Kulcsfontosságú Jellemzők és Megfigyelések
+## Kulcsfontosságú jellemzők és megjegyzések
 
 *   **Átfogó CRUD:** Lefedi a fő API erőforrások összes alapvető műveletét.
-*   **Szekvenciális Munkafolyamat:** Bemutatja komplex, egymástól függő API munkafolyamatok tesztelését.
-*   **Kétlépcsős Válaszidő Ellenőrzés:** Egy globális testscript ellenőrzi a válaszidőket:
+*   **Szekvenciális munkafolyamat:** Bemutatja komplex, egymástól függő API munkafolyamatok tesztelését.
+*   **Kétlépcsős válaszidő ellenőrzés:** Egy globális testscript ellenőrzi a válaszidőket:
     *   Elvárja, hogy a válaszok `500ms` alatt legyenek.
     *   Ha egy válasz meghaladja az `500ms`-t, figyelmeztetést naplóz (`console.warn`), de a teszt még sikeres, ha az idő `1500ms` alatt van.
     *   Az `1500ms`-t meghaladó válaszok esetén a teszt sikertelen lesz. Ez rugalmasságot biztosít, miközben továbbra is figyeli a teljesítményt.
-*   **PUT Metódus Viselkedése:** Megfigyelhető, hogy az API PUT végpontjai (`/users/{id}`, `/posts/{id}`, stb.) inkább a PATCH metódushoz hasonlóan viselkednek. Frissítik a kérés törzsében megadott mezőket, de **nem távolítják el vagy nullázzák ki azokat a mezőket, amelyek kimaradnak** a kérésből. Ez eltér a standard HTTP specifikációtól, ahol a PUT-tól az egész erőforrás lecserélését várnánk.
-*   **DELETE Státuszkódok:** A DELETE műveletek tesztjei (`deleteUser`, `deletePost`, stb.) elfogadják mind a `204 No Content`, mind a `200 OK` (üres törzzsel) státuszkódot, alkalmazkodva az API válaszainak lehetséges eltéréseihez.
+*   **PUT metódus viselkedése:** Megfigyelhető, hogy az API PUT végpontjai (`/users/{id}`, `/posts/{id}`, stb.) inkább a PATCH metódushoz hasonlóan viselkednek. Frissítik a kérés törzsében megadott mezőket, de **nem távolítják el vagy nullázzák ki azokat a mezőket, amelyek kimaradnak** a kérésből. Ez eltér a standard HTTP specifikációtól, ahol a PUT-tól az egész erőforrás lecserélését várnánk.
+*   **DELETE státuszkódok:** A DELETE műveletek tesztjei (`deleteUser`, `deletePost`, stb.) elfogadják mind a `204 No Content`, mind a `200 OK` (üres törzzsel) státuszkódot, alkalmazkodva az API válaszainak lehetséges eltéréseihez.
 *   **Egyéb információk:** Egyéb információk találhatóak még a collection adott mappáinak és requestjeinek 'Description" szekcióiban.
 
 ## Futtatás Newmannel
@@ -194,18 +194,18 @@ A collectiont **ajánlott** a **Postman Collection Runner** vagy a **Newman** se
 A Newman a Postman parancssori futtatója.
 
 1.  **Exportálás:**
-    Exportáld a collectiont (`GoRESTAPITestCollection.json`), ügyelve arra, hogy a `token`-ed is benne legyen.
-3.  **Alap Futtatás:**
+    A collection (`GoRESTAPITestCollection.json`) exportálása után ügyelni kell rá, hogy a `token` érvényes legyen.
+3.  **Alap futtatás:**
     ```bash
     cd c:\collection path
     newman run GoRESTAPITestCollection.json
     ```
-4.  **Futtatás HTML Riporttal (htmlextra reporter használatával):**
-    *   Telepítsd a reportert:
+4.  **Futtatás HTML riporttal (htmlextra reporter használatával):**
+    *   A reporter telepítése:
     ```bash
     npm install -g newman-reporter-htmlextra
     ```
-    *   Futtasd a Newmant a reporterrel:
+    *   Newman futtatása a reporterrel:
     ```bash
     newman run GoRESTAPITestCollection.json -r htmlextra
     ```
@@ -216,7 +216,7 @@ A Newman a Postman parancssori futtatója.
 Kulcsfontosságú használt collection változók:
 
 *   `baseUrl`: Az API alap URL-je (pl. `https://gorest.co.in`).
-*   `token`: **(Kötelező)** Az érvényes GoREST API Bearer tokened.
+*   `token`: **(Kötelező)** Az érvényes GoREST API Bearer token.
 *   `invalidToken`: Egy szándékosan érvénytelen token az authentikációs tesztekhez.
 *   `userId`, `postId`, `commentId`, `todoId`: Dinamikusan töltődnek fel a létrehozó kérések által a futás során.
 *   `userEmail`, `userName`, `modifiedUserName`: Felhasználók létrehozásához/frissítéséhez használt tesztadatok. Az `userEmail`-nek egyedinek kell lennie az első futtatáskor.
