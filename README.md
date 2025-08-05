@@ -123,6 +123,9 @@ Key collection variables used:
 #
 #
 <br>
+<br>
+
+*In Hungarian*
 
 # Go REST API Test Collection
 
